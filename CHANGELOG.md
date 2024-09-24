@@ -7,8 +7,9 @@ All notable changes to this project will be documented in this file.
 **Features**
 
 - Initial Release (Forked from https://github.com/sathieu/puppet-winhttp_proxy)
-- Add support for Puppet 6
 
 **Bugfixes**
+
+- Fixed bypass-list array
 
 **Known Issues**
