@@ -1,12 +1,14 @@
-Puppet::Type.type(:winhttp_proxy).provide(:netsh, :parent => Puppet::Provider) do
-  confine :operatingsystem => :windows
-  defaultfor :operatingsystem => :windows
+Puppet::Type.type(:winhttp_proxy).provide(:netsh, parent: Puppet::Provider) do
+  confine operatingsystem: :windows
+  defaultfor operatingsystem: :windows
+
+  desc 'Windows Proxy'
 
   # Actually, Windows as different settings under 32-bit or 64-bit
   # How can people pay for this crappy software?!
   # FIXME Handle the WOW64 proxy too
   def self.netsh_command
-    if File.exists?("#{ENV['SYSTEMROOT']}\\System32\\netsh.exe")
+    if File.exist?("#{ENV['SYSTEMROOT']}\\System32\\netsh.exe")
       "#{ENV['SYSTEMROOT']}\\System32\\netsh.exe"
     else
       'netsh.exe'
@@ -16,43 +18,39 @@ Puppet::Type.type(:winhttp_proxy).provide(:netsh, :parent => Puppet::Provider) d
   initvars
   mk_resource_methods
 
-  commands :netsh => netsh_command
+  commands netsh: netsh_command
 
   def self.instances
     proxy = {
       'ensure' => :absent
     }
     cmd = [ 'cmd.exe', '/c', command(:netsh), 'winhttp', 'dump' ]
-    if Puppet::PUPPETVERSION.to_f < 3.4
-      raw, status = Puppet::Util::SUIDManager.run_and_capture(cmd)
-    else
-      raw = Puppet::Util::Execution.execute(cmd)
-      status = raw.exitstatus
-    end
+    raw = Puppet::Util::Execution.execute(cmd)
+    _status = raw.exitstatus
     instances = []
     context = []
-    raw.each_line() do |line|
-      next if line =~ /^\s*(#|$)/
-      if line =~ /^pushd (.*)$/
-        context << $1
+    raw.each_line do |line|
+      next if %r{^\s*(#|$)}.match?(line)
+      if line =~ %r{^pushd (.*)$}
+        context << Regexp.last_match(1)
         next
       end
-      if line =~ /^popd$/
+      if %r{^popd$}.match?(line)
         context.pop
         next
       end
-      if context == [ 'winhttp' ] and line =~ /^reset proxy$/
+      if (context == [ 'winhttp' ]) && line =~ (%r{^reset proxy$})
         next
       end
-      if context == [ 'winhttp' ] and line =~ /^set proxy proxy-server="([^"]+)"( bypass-list="([^"]+)")?$/
+      if (context == [ 'winhttp' ]) && line =~ (%r{^set proxy proxy-server="([^"]+)"( bypass-list="([^"]+)")?$})
         proxy = {
-          :name         => :proxy,
-          :ensure       => :present,
-          :proxy_server => $1,
-          :bypass_list  => [],
+          name: :proxy,
+          ensure: :present,
+          proxy_server: Regexp.last_match(1),
+          bypass_list: [],
         }
-        if $3
-          proxy[:bypass_list] = $3.split(';')
+        if Regexp.last_match(3)
+          proxy[:bypass_list] = Regexp.last_match(3).split(';')
         end
         instances << new(proxy)
         next
@@ -64,7 +62,7 @@ Puppet::Type.type(:winhttp_proxy).provide(:netsh, :parent => Puppet::Provider) d
 
   def self.prefetch(resources)
     instances.each do |instance|
-      if proxy = resources[instance.name]
+      if (proxy = resources[instance.name])
         proxy.provider = instance
       end
     end
@@ -78,9 +76,9 @@ Puppet::Type.type(:winhttp_proxy).provide(:netsh, :parent => Puppet::Provider) d
   # Keep resource properties, flush will actually apply
   def create
     @property_hash = {
-      :ensure       => :present,
-      :proxy_server => @resource[:proxy_server],
-      :bypass_list  => @resource[:bypass_list]
+      ensure: :present,
+      proxy_server: @resource[:proxy_server],
+      bypass_list: @resource[:bypass_list]
     }
   end
 
@@ -91,12 +89,9 @@ Puppet::Type.type(:winhttp_proxy).provide(:netsh, :parent => Puppet::Provider) d
   end
 
   def flush
-    cmd = [ 'cmd.exe', '/c', command(:netsh), 'winhttp', 'set', 'proxy', 'proxy-server="%s"' % @property_hash[:proxy_server], 'bypass-list="%s"' % (@property_hash[:bypass_list].respond_to?('join') ? @property_hash[:bypass_list].join(";") : @property_hash[:bypass_list]) ]
-    if Puppet::PUPPETVERSION.to_f < 3.4
-      raw, status = Puppet::Util::SUIDManager.run_and_capture(cmd)
-    else
-      raw = Puppet::Util::Execution.execute(cmd)
-      status = raw.exitstatus
-    end
+    cmd = [ 'cmd.exe', '/c', command(:netsh), 'winhttp', 'set', 'proxy', 'proxy-server="%s"' % @property_hash[:proxy_server],
+            'bypass-list="%s"' % (@property_hash[:bypass_list].respond_to?('join') ? @property_hash[:bypass_list].join(';') : @property_hash[:bypass_list]) ]
+    raw = Puppet::Util::Execution.execute(cmd)
+    _status = raw.exitstatus
   end
 end
