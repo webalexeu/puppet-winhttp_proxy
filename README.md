@@ -40,12 +40,17 @@ Examples :
 ```puppet
 winhttp_proxy { 'proxy':
   proxy_server => 'proxy',
-  bypass_list  => '<local>'
+  bypass_list  => '<local>';
 }
 
 winhttp_proxy { 'proxy':
   proxy_server => 'http=proxy.example.com;https=proxy.example.org',
-  bypass_list  => '<local>;*.example.org;*.example.com'
+  bypass_list  => '<local>;*.example.org;*.example.com';
+}
+
+winhttp_proxy { 'proxy':
+  proxy_server => 'http=proxy.example.com;https=proxy.example.org',
+  bypass_list  => ['<local>', '*.example.org', '*.example.com'];
 }
 ```
 
@@ -55,7 +60,8 @@ Requires Windows >= 7 or Windows >= 2008 (netsh provider).
 
 ## Development
 
-As any github project, you can [read the source](https://github.com/sathieu/puppet-winhttp_proxy/),
-fork and report issues.
+PRs accepted :)
 
-[![Build Status](https://travis-ci.org/sathieu/puppet-winhttp_proxy.png?branch=master)](https://travis-ci.org/sathieu/puppet-winhttp_proxy)
+## Source
+This is a fork of https://github.com/sathieu/puppet-winhttp_proxy
+
