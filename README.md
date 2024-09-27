@@ -40,7 +40,12 @@ Examples :
 ```puppet
 winhttp_proxy { 'proxy':
   proxy_server => 'proxy',
-  bypass_list  => '<local>'
+  bypass_list  => '<local>';
+}
+
+winhttp_proxy { 'proxy':
+  proxy_server => 'http=proxy.example.com;https=proxy.example.org',
+  bypass_list  => '<local>;*.example.org;*.example.com';
 }
 
 winhttp_proxy { 'proxy':
