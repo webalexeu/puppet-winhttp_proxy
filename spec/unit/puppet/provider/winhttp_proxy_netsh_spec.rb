@@ -27,10 +27,9 @@ popd
 
 
       EOS
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
-      _instances = described_class.instances
+      allow(Puppet::Util::Execution).to receive(:execute)
+      .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+      .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
     end
 
     it 'has no instance' do
@@ -58,9 +57,10 @@ popd
     end
 
     it 'creates an instance' do
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'set', 'proxy', 'proxy-server="localproxy:3128"', 'bypass-list=""']).once.returns(
-        Puppet::Util::Execution::ProcessOutput.new('', 0),
-      )
+      expect(Puppet::Util::Execution).to receive(:execute)
+      .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'set', 'proxy', 'proxy-server="localproxy:3128"', 'bypass-list=""'])
+      .once
+      .and_return(Puppet::Util::Execution::ProcessOutput.new('', 0))
       instance.flush
     end
   end
@@ -88,9 +88,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+      .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+      .at_least(:once)
+      .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
@@ -134,9 +135,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+      .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+      .at_least(:once)
+      .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
@@ -182,9 +184,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+      .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+      .at_least(:once)
+      .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
