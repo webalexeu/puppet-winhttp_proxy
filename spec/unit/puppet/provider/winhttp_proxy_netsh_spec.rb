@@ -4,15 +4,14 @@ describe Puppet::Type.type(:winhttp_proxy).provider(:netsh) do
   before(:each) do
     allow(described_class).to receive(:command).with(:netsh).and_return('netsh')
   end
+
   # =========================================================================
   # No proxy:
   #   reset proxy
   # =========================================================================
   context 'no proxy' do
-    let :instances do
-      output = <<-EOS
-
-
+    let(:output) do
+      <<-EOS
 
 # -----------------------------------------
 # WinHTTP Proxy Configuration
@@ -25,17 +24,21 @@ popd
 
 # End of WinHTTP Proxy Configuration
 
-
       EOS
+    end
+
+    before do
       allow(Puppet::Util::Execution).to receive(:execute)
         .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
         .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
     end
 
     it 'has no instance' do
+      instances = described_class.instances
       expect(instances.count).to eq(0)
     end
   end
+end
 
   # =========================================================================
   # No proxy -> simple proxy:
