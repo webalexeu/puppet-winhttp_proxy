@@ -2,17 +2,16 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:winhttp_proxy).provider(:netsh) do
   before(:each) do
-    described_class.stubs(:command).with(:netsh).returns 'netsh'
+    allow(described_class).to receive(:command).with(:netsh).and_return('netsh')
   end
+
   # =========================================================================
   # No proxy:
   #   reset proxy
   # =========================================================================
   context 'no proxy' do
-    let :instances do
-      output = <<-EOS
-
-
+    let(:output) do
+      <<-EOS
 
 # -----------------------------------------
 # WinHTTP Proxy Configuration
@@ -25,15 +24,17 @@ popd
 
 # End of WinHTTP Proxy Configuration
 
-
       EOS
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
-      _instances = described_class.instances
+    end
+
+    before(:each) do
+      allow(Puppet::Util::Execution).to receive(:execute)
+        .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+        .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
     end
 
     it 'has no instance' do
+      instances = described_class.instances
       expect(instances.count).to eq(0)
     end
   end
@@ -58,9 +59,10 @@ popd
     end
 
     it 'creates an instance' do
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'set', 'proxy', 'proxy-server="localproxy:3128"', 'bypass-list=""']).once.returns(
-        Puppet::Util::Execution::ProcessOutput.new('', 0),
-      )
+      expect(Puppet::Util::Execution).to receive(:execute)
+        .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'set', 'proxy', 'proxy-server="localproxy:3128"', 'bypass-list=""'])
+        .once
+        .and_return(Puppet::Util::Execution::ProcessOutput.new('', 0))
       instance.flush
     end
   end
@@ -88,9 +90,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+        .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+        .at_least(:once)
+        .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
@@ -134,9 +137,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+        .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+        .at_least(:once)
+        .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
@@ -182,9 +186,10 @@ popd
 
       EOS
 
-      Puppet::Util::Execution.expects(:execute).with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump']).at_least_once.returns(
-        Puppet::Util::Execution::ProcessOutput.new(output, 0),
-      )
+      allow(Puppet::Util::Execution).to receive(:execute)
+        .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
+        .at_least(:once)
+        .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
       _instances = described_class.instances
     end
 
