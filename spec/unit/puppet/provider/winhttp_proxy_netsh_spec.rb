@@ -27,7 +27,7 @@ popd
       EOS
     end
 
-    before do
+    before(:each) do
       allow(Puppet::Util::Execution).to receive(:execute)
         .with(['cmd.exe', '/c', 'netsh', 'winhttp', 'dump'])
         .and_return(Puppet::Util::Execution::ProcessOutput.new(output, 0))
@@ -38,7 +38,6 @@ popd
       expect(instances.count).to eq(0)
     end
   end
-end
 
   # =========================================================================
   # No proxy -> simple proxy:
