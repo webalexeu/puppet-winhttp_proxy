@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:winhttp_proxy).provider(:netsh) do
   before(:each) do
-    described_class.stub(:command).with(:netsh).returns 'netsh'
+    allow(described_class).to receive(:command).with(:netsh).and_return('netsh')
   end
   # =========================================================================
   # No proxy:
